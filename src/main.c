@@ -1,16 +1,14 @@
 #include "raylib.h"
+#define FPS 60
+#define WIDTH 800
+#define HEIGHT 450
+#define TITLE "Boids Example"
 
-int main(void)
-{
-	const int width = 800;
-	const int height = 450;
+int main(void){
+	InitWindow(WIDTH, HEIGHT, TITLE);
+	SetTargetFPS(FPS);
 
-	InitWindow(width, height, "Boids");
-	
-	SetTargetFPS(60);
-
-	while (!WindowShouldClose())
-	{
+	while (!WindowShouldClose()){
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 		DrawText("test", 190, 200, 20, LIGHTGRAY);
