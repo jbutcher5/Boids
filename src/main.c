@@ -38,13 +38,13 @@ void drawBoid(Boid* boid, Vector2 center){
 
 int main(void){
 	InitWindow(WIDTH, HEIGHT, TITLE);
+	rlDisableBackfaceCulling();
 	SetTargetFPS(FPS);
 
 	Boid* boid = newBoid();
 
 	while (!WindowShouldClose()){
 		BeginDrawing();
-		rlDisableBackfaceCulling();
 		ClearBackground(RAYWHITE);
 		drawBoid(boid, (Vector2){400, 250});
 		EndDrawing();
