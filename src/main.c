@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "rlgl.h"
 #include "stdlib.h"
 #include "math.h"
 
@@ -15,7 +16,7 @@ typedef struct Boid {
 Boid* newBoid(){
 	Vector2* positions = malloc(sizeof(Vector2)*3);
 
-	positions[0] = (Vector2){0.0f, 50.0f};
+	positions[0] = (Vector2){0.0f, -50.0f};
 	positions[1] = (Vector2){25.0f, 0.0f};
 	positions[2] = (Vector2){-25.0f, 0.0f};
 
@@ -43,8 +44,9 @@ int main(void){
 
 	while (!WindowShouldClose()){
 		BeginDrawing();
+		rlDisableBackfaceCulling();
 		ClearBackground(RAYWHITE);
-		drawBoid(boid, (Vector2){400, 1});
+		drawBoid(boid, (Vector2){400, 250});
 		EndDrawing();
 	}
 
