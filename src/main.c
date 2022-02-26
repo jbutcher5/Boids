@@ -26,7 +26,7 @@ Boid* newBoid(Vector2 origin, Boid* other) {
 	Boid* boid = malloc(sizeof(Boid));
 
 	int* flockSize;
-	struct Boid** flock;
+	Boid** flock;
 
 	if (other == NULL){
 		flockSize = malloc(sizeof(int));
