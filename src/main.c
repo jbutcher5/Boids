@@ -3,6 +3,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "math.h"
+#include <math.h>
 
 #define FPS 60
 #define WIDTH 800
@@ -46,6 +47,26 @@ Boid* newBoid(Vector2 origin, Boid* other) {
 	*boid = (Boid){origin, 0, positions, flock, flockSize};
 
 	return boid;
+}
+
+float distance(Vector2 v1, Vector2 v2) {
+	Vector2 delta = {fabsf(v1.x - v2.x), fabsf(v1.x - v2.x)};
+	return sqrtf(delta.x*delta.x+delta.y*delta.y);
+}
+
+Boid** localBoids(Boid* boid) {
+	static Boid* localFlock[128];
+	int localFlockSize = 0;
+
+	for (int i = 0; i < *boid->flockSize; i++) {
+		float dist = distance(boid->flock[i]->origin, boid->origin);
+		if (dist > 2 && dist < 40) {
+			localFlock[localFlockSize] = boid->flock[i];
+			localFlockSize++;
+		}
+	}
+
+	return localFlock;
 }
 
 void rotateBoid(Boid* boid) {
