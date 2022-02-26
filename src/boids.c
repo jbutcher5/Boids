@@ -38,7 +38,7 @@ float distance(Vector2 v1, Vector2 v2) {
      return sqrtf(delta.x*delta.x+delta.y*delta.y);
 }
 
-Boid** localBoids(Boid* boid) {
+Boid** localFlock(Boid* boid) {
      static Boid* localFlock[128];
      int localFlockSize = 0;
 
@@ -51,6 +51,18 @@ Boid** localBoids(Boid* boid) {
      }
 
      return localFlock;
+}
+
+int localFlockSize(Boid** boidLocalFlock) {
+     int result = 0;
+     Boid* currentBoid = *boidLocalFlock;
+
+     while (currentBoid) {
+          result++;
+          currentBoid = boidLocalFlock[result];
+     }
+
+     return result;
 }
 
 void rotateBoid(Boid* boid) {

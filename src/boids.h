@@ -10,6 +10,5 @@ typedef struct Boid {
 } Boid;
 
 Boid* newBoid(Vector2 origin, Boid* other);
-Boid** localBoids(Boid* boid);
 void rotateBoid(Boid* boid);
 void drawBoid(Boid* boid);
