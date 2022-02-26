@@ -10,10 +10,13 @@
 #define TITLE "Boids Example"
 
 typedef struct Boid {
+	Vector2 origin;
 	Vector2* positions;
+	struct Boid** flock;
+	int* flockSize;
 } Boid;
 
-Boid* newBoid() {
+Boid* newBoid(Vector2 origin, Boid* other) {
 	Vector2* positions = malloc(sizeof(Vector2)*3);
 
 	positions[0] = (Vector2){0.0f, -5.0f};
@@ -21,7 +24,25 @@ Boid* newBoid() {
 	positions[2] = (Vector2){5, 5};
 
 	Boid* boid = malloc(sizeof(Boid));
-	*boid = (Boid){positions};
+
+	int* flockSize;
+	struct Boid** flock;
+
+	if (other == NULL){
+		flockSize = malloc(sizeof(int));
+		flock = malloc(sizeof(Boid*)*4);
+
+		flock[0] = boid;
+		*flockSize = 1;
+	} else {
+		flockSize = other->flockSize;
+		flock = other->flock;
+
+		other->flock[*other->flockSize] = boid;
+		*other->flockSize += 1;
+	}
+
+	*boid = (Boid){origin, positions, flock, flockSize};
 
 	return boid;
 }
@@ -35,11 +56,11 @@ void rotateBoid(Boid* boid, float th) {
 	}
 }
 
-void drawBoid(Boid* boid, Vector2 center) {
+void drawBoid(Boid* boid) {
 	Vector2 screenPositions[3] = {boid->positions[0], boid->positions[1], boid->positions[2]};
 
 	for (int i = 0; i < 3; i++) {
-		screenPositions[i] = (Vector2){screenPositions[i].x+center.x, screenPositions[i].y+center.y};
+		screenPositions[i] = (Vector2){screenPositions[i].x+boid->origin.x, screenPositions[i].y+boid->origin.y};
 	}
 
 	DrawTriangle(screenPositions[0], screenPositions[1], screenPositions[2], BLUE);
@@ -50,13 +71,15 @@ int main(void) {
 	rlDisableBackfaceCulling();
 	SetTargetFPS(FPS);
 
-	Boid* boid = newBoid();
-	rotateBoid(boid, 0.0f);
+	Boid* first = newBoid((Vector2){200, 200}, NULL);
+	Boid* second = newBoid((Vector2){230, 200}, first);
+	rotateBoid(second->flock[0], 1.5f);
 
 	while (!WindowShouldClose()){
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
-		drawBoid(boid, (Vector2){400, 250});
+		drawBoid(first);
+		drawBoid(second);
 		EndDrawing();
 	}
 
