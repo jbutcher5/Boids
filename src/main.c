@@ -11,6 +11,7 @@
 
 typedef struct Boid {
 	Vector2 origin;
+	float theta;
 	Vector2* positions;
 	struct Boid** flock;
 	int* flockSize;
@@ -42,17 +43,17 @@ Boid* newBoid(Vector2 origin, Boid* other) {
 		*other->flockSize += 1;
 	}
 
-	*boid = (Boid){origin, positions, flock, flockSize};
+	*boid = (Boid){origin, 0, positions, flock, flockSize};
 
 	return boid;
 }
 
-void rotateBoid(Boid* boid, float th) {
+void rotateBoid(Boid* boid) {
 	for (int i = 0; i < 3; i++) {
 		float x = boid->positions[i].x;
 		float y = boid->positions[i].y;
-		boid->positions[i].x = cos(th) * x - sin(th) * y;
-		boid->positions[i].y = sin(th) * x + cos(th) * y;
+		boid->positions[i].x = cos(boid->theta) * x - sin(boid->theta) * y;
+		boid->positions[i].y = sin(boid->theta) * x + cos(boid->theta) * y;
 	}
 }
 
@@ -73,7 +74,8 @@ int main(void) {
 
 	Boid* first = newBoid((Vector2){200, 200}, NULL);
 	Boid* second = newBoid((Vector2){230, 200}, first);
-	rotateBoid(second->flock[0], 1.5f);
+	second->flock[0]->theta = 3.f;
+	rotateBoid(second->flock[0]);
 
 	while (!WindowShouldClose()){
 		BeginDrawing();
