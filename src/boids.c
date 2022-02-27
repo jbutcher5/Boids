@@ -2,6 +2,7 @@
 #include "math.h"
 #include "boids.h"
 #include <math.h>
+#include <raylib.h>
 
 Boid* newBoid(Vector2 origin, Boid* other) {
      Vector2* positions = malloc(sizeof(Vector2)*3);
@@ -29,7 +30,7 @@ Boid* newBoid(Vector2 origin, Boid* other) {
           *other->flockSize += 1;
      }
 
-     *boid = (Boid){origin, 0, positions, flock, flockSize};
+     *boid = (Boid){origin, 0, positions, flock, flockSize, {0, 0}, GetTime()};
 
      return boid;
 }
@@ -87,6 +88,16 @@ void applyCohesion(Boid* boid) {
 
      mean = (Vector2){mean.x/localFlockSize, mean.y/localFlockSize};
      rotateBoid(boid, getTheta(boid->origin, mean));
+}
+
+void updateBoid(Boid* boid) {
+     double now = GetTime();
+     double deltaTime = now - boid->lastUpdate;
+     boid->lastUpdate = now;
+     boid->origin.x += boid->velocity.x * deltaTime;
+     boid->origin.y += boid->velocity.y * deltaTime;
+
+     applyCohesion(boid);
 }
 
 void rotateBoid(Boid* boid, float theta) {

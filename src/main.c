@@ -16,6 +16,8 @@ int main(void) {
 	Boid* first = newBoid((Vector2){200, 200}, NULL);
 	Boid* second = newBoid((Vector2){230, 200}, first);
 
+	first->velocity = (Vector2){20, 2};
+
 	while (!WindowShouldClose()){
 
 		if (IsKeyDown(KEY_RIGHT)) second->origin.x += 2.0f;
@@ -23,8 +25,9 @@ int main(void) {
         if (IsKeyDown(KEY_UP)) second->origin.y -= 2.0f;
         if (IsKeyDown(KEY_DOWN)) second->origin.y += 2.0f;
 
-		applyCohesion(first);
-		applyCohesion(second);
+		updateBoid(first);
+		updateBoid(second);
+
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 		drawBoid(first);

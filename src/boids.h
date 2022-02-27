@@ -7,10 +7,11 @@ typedef struct Boid {
     Vector2* positions;
     struct Boid** flock;
     int* flockSize;
+    Vector2 velocity;
+    double lastUpdate;
 } Boid;
 
 Boid* newBoid(Vector2 origin, Boid* other);
-float getTheta(Vector2 v1, Vector2 v2);
-void applyCohesion(Boid* boid);
+void updateBoid(Boid* boid);
 void rotateBoid(Boid* boid, float theta);
 void drawBoid(Boid* boid);
