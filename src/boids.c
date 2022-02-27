@@ -1,7 +1,6 @@
 #include "stdlib.h"
 #include "math.h"
 #include "boids.h"
-#include "stdio.h"
 #include <math.h>
 
 Boid* newBoid(Vector2 origin, Boid* other) {
@@ -47,7 +46,6 @@ Boid** getLocalFlock(Boid* boid) {
      for (int i = 0; i < *boid->flockSize; i++) {
           float dist = distance(boid->flock[i]->origin, boid->origin);
           if (boid->flock[i] != boid && dist < 60) {
-               printf("%f\n", dist);
                localFlock[localFlockSize] = boid->flock[i];
                localFlockSize++;
           }
