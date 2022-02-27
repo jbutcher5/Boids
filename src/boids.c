@@ -4,6 +4,8 @@
 #include <math.h>
 #include <raylib.h>
 
+#include "stdio.h"
+
 Boid* newBoid(Vector2 origin, Boid* other) {
      Vector2* positions = malloc(sizeof(Vector2)*3);
 
@@ -93,11 +95,13 @@ void applyCohesion(Boid* boid) {
 void updateBoid(Boid* boid) {
      double now = GetTime();
      double deltaTime = now - boid->lastUpdate;
-     boid->lastUpdate = now;
-     boid->origin.x += boid->velocity.x * deltaTime;
-     boid->origin.y += boid->velocity.y * deltaTime;
 
      applyCohesion(boid);
+
+     Vector2 velocity = {sinf(boid->theta)*boid->velocity.x, cosf(boid->theta)*boid->velocity.y};
+     boid->lastUpdate = now;
+     boid->origin.x += velocity.x * deltaTime;
+     boid->origin.y += velocity.y * deltaTime;
 }
 
 void rotateBoid(Boid* boid, float theta) {

@@ -16,7 +16,8 @@ int main(void) {
 	Boid* first = newBoid((Vector2){200, 200}, NULL);
 	Boid* second = newBoid((Vector2){230, 200}, first);
 
-	first->velocity = (Vector2){20, 2};
+	first->velocity = (Vector2){20, 20};
+	second->velocity = (Vector2){20, 20};
 
 	while (!WindowShouldClose()){
 
