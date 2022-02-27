@@ -75,7 +75,7 @@ float getTheta(Vector2 v1, Vector2 v2) {
      return atan2f(-delta.x, delta.y);
 }
 
-void applyCohesion(Boid* boid) {
+float getCohesion(Boid* boid) {
      Boid** localFlock = getLocalFlock(boid);
      int localFlockSize = getLocalFlockSize(localFlock);
 
@@ -89,14 +89,20 @@ void applyCohesion(Boid* boid) {
      free(localFlock);
 
      mean = (Vector2){mean.x/localFlockSize, mean.y/localFlockSize};
-     rotateBoid(boid, getTheta(boid->origin, mean));
+     return getTheta(boid->origin, mean);
 }
 
 void updateBoid(Boid* boid) {
      double now = GetTime();
      double deltaTime = now - boid->lastUpdate;
 
-     applyCohesion(boid);
+     float rules[1] = {getCohesion(boid)};
+     float meanRule = 0;
+     for (int i = 0; i < 1; i++)
+          meanRule += rules[i];
+     meanRule /= 1;
+
+     rotateBoid(boid, meanRule);
 
      Vector2 velocity = {sinf(boid->theta)*boid->velocity.x, cosf(boid->theta)*boid->velocity.y};
      boid->lastUpdate = now;
