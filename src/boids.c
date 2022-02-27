@@ -1,6 +1,8 @@
 #include "stdlib.h"
 #include "math.h"
 #include "boids.h"
+#include "stdio.h"
+#include <math.h>
 
 Boid* newBoid(Vector2 origin, Boid* other) {
      Vector2* positions = malloc(sizeof(Vector2)*3);
@@ -34,17 +36,18 @@ Boid* newBoid(Vector2 origin, Boid* other) {
 }
 
 float distance(Vector2 v1, Vector2 v2) {
-     Vector2 delta = {fabsf(v1.x - v2.x), fabsf(v1.x - v2.x)};
+     Vector2 delta = {fabsf(v1.x - v2.x), fabsf(v1.y - v2.y)};
      return sqrtf(delta.x*delta.x+delta.y*delta.y);
 }
 
-Boid** localFlock(Boid* boid) {
-     static Boid* localFlock[128];
+Boid** getLocalFlock(Boid* boid) {
+     Boid** localFlock = malloc(sizeof(Boid*)*32);
      int localFlockSize = 0;
 
      for (int i = 0; i < *boid->flockSize; i++) {
           float dist = distance(boid->flock[i]->origin, boid->origin);
-          if (dist > 2 && dist < 40) {
+          if (boid->flock[i] != boid && dist < 60) {
+               printf("%f\n", dist);
                localFlock[localFlockSize] = boid->flock[i];
                localFlockSize++;
           }
@@ -53,25 +56,52 @@ Boid** localFlock(Boid* boid) {
      return localFlock;
 }
 
-int localFlockSize(Boid** boidLocalFlock) {
+int getLocalFlockSize(Boid** localFlock) {
      int result = 0;
-     Boid* currentBoid = *boidLocalFlock;
+     Boid* currentBoid = *localFlock;
 
      while (currentBoid) {
           result++;
-          currentBoid = boidLocalFlock[result];
+          currentBoid = localFlock[result];
      }
 
      return result;
 }
 
-void rotateBoid(Boid* boid) {
+float getTheta(Vector2 v1, Vector2 v2) {
+     Vector2 delta = {v1.x - v2.x, v1.y - v2.y};
+
+     return atan2f(-delta.x, delta.y);
+}
+
+void applyCohesion(Boid* boid) {
+     Boid** localFlock = getLocalFlock(boid);
+     int localFlockSize = getLocalFlockSize(localFlock);
+
+     Vector2 mean = {0, 0};
+
+     for (int i = 0; i < localFlockSize; i++) {
+          mean.x += localFlock[i]->origin.x;
+          mean.y += localFlock[i]->origin.y;
+     }
+
+     free(localFlock);
+
+     mean = (Vector2){mean.x/localFlockSize, mean.y/localFlockSize};
+     rotateBoid(boid, getTheta(boid->origin, mean));
+}
+
+void rotateBoid(Boid* boid, float theta) {
+     float rotationDelta = theta - boid->theta;
+
      for (int i = 0; i < 3; i++) {
           float x = boid->positions[i].x;
           float y = boid->positions[i].y;
-          boid->positions[i].x = cos(boid->theta) * x - sin(boid->theta) * y;
-          boid->positions[i].y = sin(boid->theta) * x + cos(boid->theta) * y;
+          boid->positions[i].x = cos(rotationDelta) * x - sin(rotationDelta) * y;
+          boid->positions[i].y = sin(rotationDelta) * x + cos(rotationDelta) * y;
      }
+
+     boid->theta += rotationDelta;
 }
 
 void drawBoid(Boid* boid) {

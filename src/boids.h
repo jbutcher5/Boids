@@ -10,5 +10,7 @@ typedef struct Boid {
 } Boid;
 
 Boid* newBoid(Vector2 origin, Boid* other);
-void rotateBoid(Boid* boid);
+float getTheta(Vector2 v1, Vector2 v2);
+void applyCohesion(Boid* boid);
+void rotateBoid(Boid* boid, float theta);
 void drawBoid(Boid* boid);

@@ -15,10 +15,16 @@ int main(void) {
 
 	Boid* first = newBoid((Vector2){200, 200}, NULL);
 	Boid* second = newBoid((Vector2){230, 200}, first);
-	second->flock[0]->theta = 3.f;
-	rotateBoid(second->flock[0]);
 
 	while (!WindowShouldClose()){
+
+		if (IsKeyDown(KEY_RIGHT)) second->origin.x += 2.0f;
+        if (IsKeyDown(KEY_LEFT)) second->origin.x -= 2.0f;
+        if (IsKeyDown(KEY_UP)) second->origin.y -= 2.0f;
+        if (IsKeyDown(KEY_DOWN)) second->origin.y += 2.0f;
+
+		applyCohesion(first);
+		applyCohesion(second);
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 		drawBoid(first);
