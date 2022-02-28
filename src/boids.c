@@ -6,7 +6,7 @@
 
 #include "stdio.h"
 
-Boid* newBoid(Vector2 origin, Boid* other) {
+Boid* newBoid(Vector2 origin, Vector2 velocity, Boid* other) {
      Vector2* positions = malloc(sizeof(Vector2)*3);
 
      positions[0] = (Vector2){0.0f, -5.0f};
@@ -32,7 +32,7 @@ Boid* newBoid(Vector2 origin, Boid* other) {
           *other->flockSize += 1;
      }
 
-     *boid = (Boid){origin, 0, positions, flock, flockSize, {0, 0}, GetTime()};
+     *boid = (Boid){origin, 0, positions, flock, flockSize, velocity, GetTime()};
 
      return boid;
 }

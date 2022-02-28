@@ -11,7 +11,7 @@ typedef struct Boid {
     double lastUpdate;
 } Boid;
 
-Boid* newBoid(Vector2 origin, Boid* other);
+Boid* newBoid(Vector2 origin, Vector2 velocity, Boid* other);
 void updateBoid(Boid* boid);
 void rotateBoid(Boid* boid, float theta);
 void drawBoid(Boid* boid);
