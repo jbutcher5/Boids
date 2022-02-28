@@ -61,7 +61,7 @@ int getLocalFlockSize(Boid** localFlock) {
      int result = 0;
      Boid* currentBoid = *localFlock;
 
-     while (currentBoid) {
+     while (currentBoid && result < 32) {
           result++;
           currentBoid = localFlock[result];
      }
@@ -92,15 +92,29 @@ float getCohesion(Boid* boid) {
      return getTheta(boid->origin, mean);
 }
 
+float getAlignment(Boid* boid) {
+     Boid** localFlock = getLocalFlock(boid);
+     int localFlockSize = getLocalFlockSize(localFlock);
+
+     float meanRotation = 0;
+
+     for (int i = 0; i < localFlockSize; i++)
+          meanRotation += localFlock[i]->theta;
+     free(localFlock);
+     meanRotation /= localFlockSize;
+
+     return meanRotation;
+}
+
 void updateBoid(Boid* boid) {
      double now = GetTime();
      double deltaTime = now - boid->lastUpdate;
 
-     float rules[1] = {getCohesion(boid)};
+     float rules[2] = {getCohesion(boid), getAlignment(boid)};
      float meanRule = 0;
-     for (int i = 0; i < 1; i++)
+     for (int i = 0; i < 2; i++)
           meanRule += rules[i];
-     meanRule /= 1;
+     meanRule /= 2;
 
      rotateBoid(boid, meanRule);
 
