@@ -3,7 +3,7 @@
 
 typedef struct Boid {
     Vector2 origin;
-    float theta;
+    float rotation;
     Vector2* positions;
     struct Boid** flock;
     int* flockSize;

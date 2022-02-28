@@ -69,7 +69,7 @@ int getLocalFlockSize(Boid** localFlock) {
      return result;
 }
 
-float getTheta(Vector2 v1, Vector2 v2) {
+float getRotation(Vector2 v1, Vector2 v2) {
      Vector2 delta = {v1.x - v2.x, v1.y - v2.y};
 
      return atan2f(-delta.x, delta.y);
@@ -89,7 +89,7 @@ float getCohesion(Boid* boid) {
      free(localFlock);
 
      mean = (Vector2){mean.x/localFlockSize, mean.y/localFlockSize};
-     return getTheta(boid->origin, mean);
+     return getRotation(boid->origin, mean);
 }
 
 float getAlignment(Boid* boid) {
@@ -99,33 +99,48 @@ float getAlignment(Boid* boid) {
      float meanRotation = 0;
 
      for (int i = 0; i < localFlockSize; i++)
-          meanRotation += localFlock[i]->theta;
+          meanRotation += localFlock[i]->rotation;
      free(localFlock);
      meanRotation /= localFlockSize;
 
      return meanRotation;
 }
 
+float getSeparation(Boid* boid) {
+     Boid** localFlock = getLocalFlock(boid);
+     int localFlockSize = getLocalFlockSize(localFlock);
+
+     float meanRotation = 0;
+
+     for (int i = 0; i < localFlockSize; i++)
+          meanRotation += getRotation(boid->origin, localFlock[i]->origin);
+     free(localFlock);
+     meanRotation /= localFlockSize;
+
+     return 2*M_PI-meanRotation;
+}
+
 void updateBoid(Boid* boid) {
      double now = GetTime();
      double deltaTime = now - boid->lastUpdate;
 
-     float rules[2] = {getCohesion(boid), getAlignment(boid)};
+     float rules[] = {getCohesion(boid), getAlignment(boid), getSeparation(boid)};
      float meanRule = 0;
-     for (int i = 0; i < 2; i++)
+     for (int i = 0; i < 3; i++)
           meanRule += rules[i];
-     meanRule /= 2;
+     meanRule /= 3;
 
      rotateBoid(boid, meanRule);
 
-     Vector2 velocity = {sinf(boid->theta)*boid->velocity.x, cosf(boid->theta)*boid->velocity.y};
+     Vector2 velocity = {sinf(boid->rotation)*boid->velocity.x, cosf(boid->rotation)*boid->velocity.y};
      boid->lastUpdate = now;
-     boid->origin.x += velocity.x * deltaTime;
-     boid->origin.y += velocity.y * deltaTime;
+
+     boid->origin = (Vector2){boid->origin.x + velocity.x * deltaTime, boid->origin.y + velocity.y * deltaTime};
+     boid->origin = (Vector2){fmod(boid->origin.x+800, 800), fmod(boid->origin.y+450, 450)};
 }
 
 void rotateBoid(Boid* boid, float theta) {
-     float rotationDelta = theta - boid->theta;
+     float rotationDelta = theta - boid->rotation;
 
      for (int i = 0; i < 3; i++) {
           float x = boid->positions[i].x;
@@ -134,7 +149,7 @@ void rotateBoid(Boid* boid, float theta) {
           boid->positions[i].y = sin(rotationDelta) * x + cos(rotationDelta) * y;
      }
 
-     boid->theta += rotationDelta;
+     boid->rotation += rotationDelta;
 }
 
 void drawBoid(Boid* boid) {
