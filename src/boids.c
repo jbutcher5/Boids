@@ -132,7 +132,7 @@ void updateBoid(Boid* boid) {
 
      rotateBoid(boid, meanRule);
 
-     Vector2 velocity = {sinf(boid->rotation)*boid->velocity.x, cosf(boid->rotation)*boid->velocity.y};
+     Vector2 velocity = {sinf(boid->rotation)*boid->velocity.x, -cosf(boid->rotation)*boid->velocity.y};
      boid->lastUpdate = now;
 
      boid->origin = (Vector2){boid->origin.x + velocity.x * deltaTime, boid->origin.y + velocity.y * deltaTime};
