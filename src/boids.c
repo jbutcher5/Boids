@@ -4,8 +4,6 @@
 #include <math.h>
 #include <raylib.h>
 
-#include "stdio.h"
-
 Boid* newBoid(Vector2 origin, Vector2 velocity, Boid* other) {
      Vector2* positions = malloc(sizeof(Vector2)*3);
 
@@ -18,9 +16,9 @@ Boid* newBoid(Vector2 origin, Vector2 velocity, Boid* other) {
      int* flockSize;
      Boid** flock;
 
-     if (other == NULL){
+     if (!other){
+          flock = malloc(sizeof(Boid*)*1024);
           flockSize = malloc(sizeof(int));
-          flock = malloc(sizeof(Boid*)*4);
 
           flock[0] = boid;
           *flockSize = 1;
@@ -28,8 +26,10 @@ Boid* newBoid(Vector2 origin, Vector2 velocity, Boid* other) {
           flockSize = other->flockSize;
           flock = other->flock;
 
-          other->flock[*other->flockSize] = boid;
-          *other->flockSize += 1;
+          // NOTE: Segmentaion Fault will occur here if unchecked
+
+          flock[*flockSize] = boid;
+          *flockSize += 1;
      }
 
      *boid = (Boid){origin, 0, positions, flock, flockSize, velocity, GetTime()};
@@ -47,8 +47,11 @@ Boid** getLocalFlock(Boid* boid) {
      int localFlockSize = 0;
 
      for (int i = 0; i < *boid->flockSize; i++) {
+          if (localFlockSize > 32)
+               break;
+
           float dist = distance(boid->flock[i]->origin, boid->origin);
-          if (boid->flock[i] != boid && dist < 60) {
+          if ((void*)boid->flock[i] != (void*)0xbebebebebebebebe && boid->flock[i] != boid && dist < 60) {
                localFlock[localFlockSize] = boid->flock[i];
                localFlockSize++;
           }
@@ -61,7 +64,7 @@ int getLocalFlockSize(Boid** localFlock) {
      int result = 0;
      Boid* currentBoid = *localFlock;
 
-     while (currentBoid && result < 32) {
+     while (currentBoid && (void*)currentBoid != (void*)0xbebebebebebebebe && result < 4) {
           result++;
           currentBoid = localFlock[result];
      }

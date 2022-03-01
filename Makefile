@@ -3,7 +3,7 @@ CFLAGS = -lraylib -lm -o boids
 source := $(wildcard src/*.c)
 
 compile:
-	$(CC) $(source) $(CFLAGS) -g
+	$(CC) $(source) $(CFLAGS) -g3 -fsanitize=address
 
 optimised:
 	$(CC) $(source) $(CFLAGS) -O3
