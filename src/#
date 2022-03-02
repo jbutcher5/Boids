@@ -25,13 +25,8 @@ int main(void) {
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 
-		for (int i = 0; i < 32; i++)
-			drawBoid(flock[i]);
-
 		EndDrawing();
 	}
 
 	CloseWindow();
-
-	return 0;
 }

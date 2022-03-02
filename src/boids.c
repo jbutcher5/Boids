@@ -4,7 +4,12 @@
 #include <math.h>
 #include <raylib.h>
 
-Boid* newBoid(Vector2 origin, Vector2 velocity, Boid* other) {
+struct LocalFlock {
+     Boid flock[32];
+     int size;
+} typedef LocalFlock;
+
+Boid* newBoid(Vector2 origin, Vector2 velocity) {
      Vector2* positions = malloc(sizeof(Vector2)*3);
 
      positions[0] = (Vector2){0.0f, -5.0f};
@@ -12,27 +17,7 @@ Boid* newBoid(Vector2 origin, Vector2 velocity, Boid* other) {
      positions[2] = (Vector2){5, 5};
 
      Boid* boid = malloc(sizeof(Boid));
-
-     int* flockSize;
-     Boid** flock;
-
-     if (!other){
-          flock = malloc(sizeof(Boid*)*1024);
-          flockSize = malloc(sizeof(int));
-
-          flock[0] = boid;
-          *flockSize = 1;
-     } else {
-          flockSize = other->flockSize;
-          flock = other->flock;
-
-          // NOTE: Segmentaion Fault will occur here if unchecked
-
-          flock[*flockSize] = boid;
-          *flockSize += 1;
-     }
-
-     *boid = (Boid){origin, 0, positions, flock, flockSize, velocity, GetTime()};
+     *boid = (Boid){origin, 0, positions, velocity, GetTime()};
 
      return boid;
 }
@@ -42,34 +27,20 @@ float distance(Vector2 v1, Vector2 v2) {
      return sqrtf(delta.x*delta.x+delta.y*delta.y);
 }
 
-Boid** getLocalFlock(Boid* boid) {
-     Boid** localFlock = malloc(sizeof(Boid*)*32);
-     int localFlockSize = 0;
+LocalFlock getLocalFlock(Boid* boid, Boid** flock, int flockSize) {
+     LocalFlock localFlock;
+     localFlock.size = 0;
 
-     for (int i = 0; i < *boid->flockSize; i++) {
-          if (localFlockSize > 32)
-               break;
-
-          float dist = distance(boid->flock[i]->origin, boid->origin);
-          if ((void*)boid->flock[i] != (void*)0xbebebebebebebebe && boid->flock[i] != boid && dist < 60) {
-               localFlock[localFlockSize] = boid->flock[i];
-               localFlockSize++;
+     for (int i = 0; i < flockSize; i++) {
+          float dist = distance(flock[i]->origin, boid->origin);
+          if (flock[i] != boid && dist < 60) {
+               localFlock.flock[localFlock.size] = *flock[i];
+               localFlock.size += 1;
           }
+          i++;
      }
 
      return localFlock;
-}
-
-int getLocalFlockSize(Boid** localFlock) {
-     int result = 0;
-     Boid* currentBoid = *localFlock;
-
-     while (currentBoid && (void*)currentBoid != (void*)0xbebebebebebebebe && result < 4) {
-          result++;
-          currentBoid = localFlock[result];
-     }
-
-     return result;
 }
 
 float getRotation(Vector2 v1, Vector2 v2) {
@@ -78,56 +49,46 @@ float getRotation(Vector2 v1, Vector2 v2) {
      return atan2f(-delta.x, delta.y);
 }
 
-float getCohesion(Boid* boid) {
-     Boid** localFlock = getLocalFlock(boid);
-     int localFlockSize = getLocalFlockSize(localFlock);
-
+float getCohesion(Boid* boid, LocalFlock localFlock) {
      Vector2 mean = {0, 0};
 
-     for (int i = 0; i < localFlockSize; i++) {
-          mean.x += localFlock[i]->origin.x;
-          mean.y += localFlock[i]->origin.y;
+     for (int i = 0; i < localFlock.size; i++) {
+          mean.x += localFlock.flock[i].origin.x;
+          mean.y += localFlock.flock[i].origin.y;
      }
 
-     free(localFlock);
-
-     mean = (Vector2){mean.x/localFlockSize, mean.y/localFlockSize};
+     mean = (Vector2){mean.x/localFlock.size, mean.y/localFlock.size};
      return getRotation(boid->origin, mean);
 }
 
-float getAlignment(Boid* boid) {
-     Boid** localFlock = getLocalFlock(boid);
-     int localFlockSize = getLocalFlockSize(localFlock);
-
+float getAlignment(Boid* boid, LocalFlock localFlock) {
      float meanRotation = 0;
 
-     for (int i = 0; i < localFlockSize; i++)
-          meanRotation += localFlock[i]->rotation;
-     free(localFlock);
-     meanRotation /= localFlockSize;
+     for (int i = 0; i < localFlock.size; i++)
+          meanRotation += localFlock.flock[i].rotation;
+     meanRotation /= localFlock.size;
 
      return meanRotation;
 }
 
-float getSeparation(Boid* boid) {
-     Boid** localFlock = getLocalFlock(boid);
-     int localFlockSize = getLocalFlockSize(localFlock);
-
+float getSeparation(Boid* boid, LocalFlock localFlock) {
      float meanRotation = 0;
 
-     for (int i = 0; i < localFlockSize; i++)
-          meanRotation += getRotation(boid->origin, localFlock[i]->origin);
-     free(localFlock);
-     meanRotation /= localFlockSize;
+     for (int i = 0; i < localFlock.size; i++)
+          meanRotation += getRotation(boid->origin, localFlock.flock[i].origin);
+     meanRotation /= localFlock.size;
 
      return 2*M_PI-meanRotation;
 }
 
-void updateBoid(Boid* boid) {
+void updateBoid(Boid* boid, Boid** flock, int flockSize) {
      double now = GetTime();
      double deltaTime = now - boid->lastUpdate;
 
-     float rules[] = {getCohesion(boid), getAlignment(boid), getSeparation(boid)};
+     LocalFlock localFlock = getLocalFlock(boid, flock, flockSize);
+
+     float rules[] = {getCohesion(boid, localFlock), getAlignment(boid, localFlock), getSeparation(boid, localFlock)};
+
      float meanRule = 0;
      for (int i = 0; i < 3; i++)
           meanRule += rules[i];
