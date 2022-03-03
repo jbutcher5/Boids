@@ -9,7 +9,7 @@ typedef struct Boid {
     double lastUpdate;
 } Boid;
 
-Boid* newBoid(Vector2 origin, Vector2 velocity);
+Boid* newBoid(Vector2 origin, Vector2 velocity, float rotation);
 void updateBoid(Boid* boid, Boid** flock, int flockSize);
 void rotateBoid(Boid* boid, float theta);
 void drawBoid(Boid* boid);
