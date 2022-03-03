@@ -33,7 +33,7 @@ LocalFlock getLocalFlock(Boid* boid, Boid** flock, int flockSize) {
 
      for (int i = 0; i < flockSize; i++) {
           float dist = distance(flock[i]->origin, boid->origin);
-          if (flock[i] != boid && dist < 60) {
+          if (flock[i] != boid && dist < 100) {
                localFlock.flock[localFlock.size] = flock[i];
                localFlock.size += 1;
           }
