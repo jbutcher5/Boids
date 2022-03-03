@@ -9,7 +9,7 @@ struct LocalFlock {
      int size;
 } typedef LocalFlock;
 
-Boid* newBoid(Vector2 origin, Vector2 velocity, float rotation, float rotationSpeed) {
+Boid* newBoid(Vector2 origin, Vector2 velocity, float rotation, float angularVelocity) {
      Vector2* positions = malloc(sizeof(Vector2)*3);
 
      positions[0] = (Vector2){0.0f, -5.0f};
@@ -17,7 +17,7 @@ Boid* newBoid(Vector2 origin, Vector2 velocity, float rotation, float rotationSp
      positions[2] = (Vector2){5, 5};
 
      Boid* boid = malloc(sizeof(Boid));
-     *boid = (Boid){origin, rotation, positions, velocity, rotationSpeed, GetTime()};
+     *boid = (Boid){origin, rotation, positions, velocity, angularVelocity, GetTime()};
 
      return boid;
 }
