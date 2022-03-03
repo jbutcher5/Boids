@@ -5,7 +5,7 @@
 #include <raylib.h>
 
 struct LocalFlock {
-     Boid flock[32];
+     Boid* flock[32];
      int size;
 } typedef LocalFlock;
 
@@ -34,7 +34,7 @@ LocalFlock getLocalFlock(Boid* boid, Boid** flock, int flockSize) {
      for (int i = 0; i < flockSize; i++) {
           float dist = distance(flock[i]->origin, boid->origin);
           if (flock[i] != boid && dist < 60) {
-               localFlock.flock[localFlock.size] = *flock[i];
+               localFlock.flock[localFlock.size] = flock[i];
                localFlock.size += 1;
           }
           i++;
@@ -50,11 +50,14 @@ float getRotation(Vector2 v1, Vector2 v2) {
 }
 
 float getCohesion(Boid* boid, LocalFlock localFlock) {
+     if (!localFlock.size)
+          return boid->rotation;
+
      Vector2 mean = {0, 0};
 
      for (int i = 0; i < localFlock.size; i++) {
-          mean.x += localFlock.flock[i].origin.x;
-          mean.y += localFlock.flock[i].origin.y;
+          mean.x += localFlock.flock[i]->origin.x;
+          mean.y += localFlock.flock[i]->origin.y;
      }
 
      mean = (Vector2){mean.x/localFlock.size, mean.y/localFlock.size};
@@ -62,20 +65,26 @@ float getCohesion(Boid* boid, LocalFlock localFlock) {
 }
 
 float getAlignment(Boid* boid, LocalFlock localFlock) {
+     if (!localFlock.size)
+          return boid->rotation;
+
      float meanRotation = 0;
 
      for (int i = 0; i < localFlock.size; i++)
-          meanRotation += localFlock.flock[i].rotation;
+          meanRotation += localFlock.flock[i]->rotation;
      meanRotation /= localFlock.size;
 
      return meanRotation;
 }
 
 float getSeparation(Boid* boid, LocalFlock localFlock) {
+     if (!localFlock.size)
+          return boid->rotation;
+
      float meanRotation = 0;
 
      for (int i = 0; i < localFlock.size; i++)
-          meanRotation += getRotation(boid->origin, localFlock.flock[i].origin);
+          meanRotation += getRotation(boid->origin, localFlock.flock[i]->origin);
      meanRotation /= localFlock.size;
 
      return 2*M_PI-meanRotation;
@@ -100,7 +109,11 @@ void updateBoid(Boid* boid, Boid** flock, int flockSize) {
      boid->lastUpdate = now;
 
      boid->origin = (Vector2){boid->origin.x + velocity.x * deltaTime, boid->origin.y + velocity.y * deltaTime};
-     boid->origin = (Vector2){fmod(boid->origin.x+800, 800), fmod(boid->origin.y+450, 450)};
+
+     Vector2 offest = {boid->origin.x - (int)boid->origin.x, boid->origin.y - (int)boid->origin.y};
+     Vector2 correctedInt = {(int)boid->origin.x%800, (int)boid->origin.y%450};
+
+     boid->origin = (Vector2){correctedInt.x+offest.x, correctedInt.y+offest.y};
 }
 
 void rotateBoid(Boid* boid, float theta) {
