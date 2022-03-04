@@ -13,19 +13,19 @@ int main(void) {
 	rlDisableBackfaceCulling();
 	SetTargetFPS(FPS);
 
-	Boid* flock[128];
+	Boid* flock[32];
 
-	for (int i = 0; i < 128; i++)
-		flock[i] = newBoid((Vector2){GetRandomValue(0, WIDTH), GetRandomValue(i, HEIGHT)}, (Vector2){20, 20}, 0);
+	for (int i = 0; i < 32; i++)
+		flock[i] = newBoid((Vector2){GetRandomValue(0, WIDTH), GetRandomValue(i, HEIGHT)}, (Vector2){20, 20}, 0, 1.5);
 
 	while (!WindowShouldClose()){
-		for (int i = 0; i < 128; i++)
-			updateBoid(flock[i], flock, 128);
+		for (int i = 0; i < 32; i++)
+			updateBoid(flock[i], flock, 32);
 
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 
-		for (int i = 0; i < 128; i++)
+		for (int i = 0; i < 32; i++)
 			drawBoid(flock[i]);
 
 		EndDrawing();
