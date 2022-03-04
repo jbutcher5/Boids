@@ -4,8 +4,11 @@
 #include <math.h>
 #include <raylib.h>
 
+#define MODULO(a, n) fmod(a, n) + ((a < 0) * n)
+#define localFlockSize 128
+
 struct LocalFlock {
-     Boid* flock[32];
+     Boid* flock[localFlockSize];
      int size;
 } typedef LocalFlock;
 
@@ -36,6 +39,9 @@ LocalFlock getLocalFlock(Boid* boid, Boid** flock, int flockSize) {
           if (flock[i] != boid && dist < 200) {
                localFlock.flock[localFlock.size] = flock[i];
                localFlock.size += 1;
+
+               if (localFlock.size > localFlockSize)
+                    break;
           }
           i++;
      }
