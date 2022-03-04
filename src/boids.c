@@ -5,6 +5,7 @@
 #include <raylib.h>
 
 #define MODULO(a, n) fmod(a, n) + ((a < 0) * n)
+#define INVERSE(theta) fmod(theta+M_PI, 2*M_PI)
 #define localFlockSize 128
 
 struct LocalFlock {
@@ -36,7 +37,7 @@ LocalFlock getLocalFlock(Boid* boid, Boid** flock, int flockSize) {
 
      for (int i = 0; i < flockSize; i++) {
           float dist = distance(flock[i]->origin, boid->origin);
-          if (flock[i] != boid && dist < 200) {
+          if (flock[i] != boid && dist < 30) {
                localFlock.flock[localFlock.size] = flock[i];
                localFlock.size += 1;
 
@@ -105,32 +106,29 @@ void updateBoid(Boid* boid, Boid** flock, int flockSize) {
      // Rotation Updates
 
      float rules[] = {getCohesion(boid, localFlock), getAlignment(boid, localFlock), getSeparation(boid, localFlock)};
-
-     float meanRotation = 0;
-     int ruleCount = 0;
+     float ruleDistance[3] = {0, 0, 0};
 
      for (int i = 0; i < 3; i++)
-          if (rules[i] != boid->rotation)
-               meanRotation += rules[i]; ruleCount++;
+          ruleDistance[i] = sinf(INVERSE(rules[i]))*cosf(INVERSE(rules[i]));
 
-     if (ruleCount)
-          meanRotation /= ruleCount;
+     float mostSignificant = 0;
 
-     if (!ruleCount)
-          meanRotation = boid->rotation;
+     for (int i = 0; i < 3; i++)
+          if (fabs(ruleDistance[i]) > mostSignificant || !mostSignificant)
+               mostSignificant = rules[i];
 
      float possibleRotation = boid->angularVelocity*deltaTime;
 
-     int meanSign = signbit(meanRotation);
-     if (!meanSign) meanSign++;
+     int rotSign = signbit(mostSignificant);
+     if (!rotSign) rotSign++;
 
-     possibleRotation *= meanSign;
+     possibleRotation *= rotSign;
 
-     if (fabs(meanRotation) >= fabs(possibleRotation))
+     if (fabs(mostSignificant) >= fabs(possibleRotation))
           rotateBoid(boid, possibleRotation);
 
-     if (fabs(meanRotation) < fabs(possibleRotation))
-          rotateBoid(boid, meanRotation);
+     if (fabs(mostSignificant) < fabs(possibleRotation))
+          rotateBoid(boid, mostSignificant);
 
      // Position Updates
 
