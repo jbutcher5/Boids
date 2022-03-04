@@ -96,6 +96,8 @@ void updateBoid(Boid* boid, Boid** flock, int flockSize) {
 
      LocalFlock localFlock = getLocalFlock(boid, flock, flockSize);
 
+     // Rotation Updates
+
      float rules[] = {getCohesion(boid, localFlock), getAlignment(boid, localFlock), getSeparation(boid, localFlock)};
 
      float meanRule = 0;
@@ -103,16 +105,29 @@ void updateBoid(Boid* boid, Boid** flock, int flockSize) {
           meanRule += rules[i];
      meanRule /= 3;
 
-     rotateBoid(boid, meanRule);
+     float possibleRotation = boid->angularVelocity*now;
+
+     int meanSign = signbit(meanRule);
+     if (!meanSign) meanSign--;
+
+     possibleRotation *= meanSign;
+
+     if (fabs(meanRule) >= fabs(possibleRotation))
+          rotateBoid(boid, possibleRotation);
+
+     if (fabs(meanRule) < fabs(possibleRotation))
+          rotateBoid(boid, meanRule);
+
+     // Position Updates
 
      Vector2 velocity = {sinf(boid->rotation)*boid->velocity.x, -cosf(boid->rotation)*boid->velocity.y};
-     boid->lastUpdate = now;
 
      boid->origin = (Vector2){boid->origin.x + velocity.x * deltaTime, boid->origin.y + velocity.y * deltaTime};
 
      Vector2 offest = {boid->origin.x - (int)boid->origin.x, boid->origin.y - (int)boid->origin.y};
      Vector2 correctedInt = {(int)boid->origin.x%800, (int)boid->origin.y%450};
 
+     boid->lastUpdate = now;
      boid->origin = (Vector2){correctedInt.x+offest.x, correctedInt.y+offest.y};
 }
 
