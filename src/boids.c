@@ -88,13 +88,20 @@ float getSeparation(Boid* boid, LocalFlock localFlock) {
      if (!localFlock.size)
           return boid->rotation;
 
-     float meanRotation = 0;
+     float distances[localFlock.size];
 
      for (int i = 0; i < localFlock.size; i++)
-          meanRotation += getRotation(boid->origin, localFlock.flock[i]->origin);
-     meanRotation /= localFlock.size;
+          distances[i] = distance(boid->origin, localFlock.flock[i]->origin);
 
-     return 2*M_PI-meanRotation;
+     float closestLocalDistance, closestLocalRotation = 0;
+
+     for (int i = 0; i < localFlock.size; i++)
+          if (distances[i] < closestLocalDistance || !closestLocalRotation) {
+               closestLocalRotation = getRotation(boid->origin, localFlock.flock[i]->origin);
+               closestLocalDistance = distances[i];
+          }
+
+     return INVERSE(closestLocalRotation);
 }
 
 void updateBoid(Boid* boid, Boid** flock, int flockSize) {
