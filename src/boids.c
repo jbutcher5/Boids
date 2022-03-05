@@ -21,7 +21,7 @@ Boid* newBoid(Vector2 origin, Vector2 velocity, float rotation, float angularVel
      positions[2] = (Vector2){5, 5};
 
      Boid* boid = malloc(sizeof(Boid));
-     *boid = (Boid){origin, rotation, positions, velocity, angularVelocity, GetTime()};
+     *boid = (Boid){origin, 0, positions, velocity, angularVelocity, GetTime()};
 
      rotateBoid(boid, rotation);
 
@@ -128,33 +128,35 @@ void updateBoid(Boid* boid, Boid** flock, int flockSize) {
 
      possibleRotation *= rotSign;
 
-     if (fabs(targetRotation) >= fabs(possibleRotation))
+     if (fabs(targetRotation) >= fabs(possibleRotation) && meanRotation != boid->rotation)
           rotateBoid(boid, possibleRotation);
 
-     if (fabs(targetRotation) < fabs(possibleRotation))
+     if (fabs(targetRotation) < fabs(possibleRotation) && meanRotation != boid->rotation)
           rotateBoid(boid, targetRotation);
+
+     */
 
      // Position Updates
 
      Vector2 velocity = {sinf(boid->rotation)*boid->velocity.x, -cosf(boid->rotation)*boid->velocity.y};
-
      boid->origin = (Vector2){boid->origin.x + velocity.x * deltaTime, boid->origin.y + velocity.y * deltaTime};
+     boid->origin = (Vector2){MODULO(boid->origin.x, 800), MODULO(boid->origin.y, 450)};
+
 
      boid->lastUpdate = now;
-     boid->origin = (Vector2){MODULO(boid->origin.x, 800), MODULO(boid->origin.y, 450)};
 }
 
 void rotateBoid(Boid* boid, float theta) {
-     float rotationDelta = theta - boid->rotation;
+     float rotationDelta = boid->rotation + theta;
 
      for (int i = 0; i < 3; i++) {
           float x = boid->positions[i].x;
           float y = boid->positions[i].y;
-          boid->positions[i].x = cos(rotationDelta) * x - sin(rotationDelta) * y;
-          boid->positions[i].y = sin(rotationDelta) * x + cos(rotationDelta) * y;
+          boid->positions[i].x = cos(theta) * x - sin(theta) * y;
+          boid->positions[i].y = sin(theta) * x + cos(theta) * y;
      }
 
-     boid->rotation += rotationDelta;
+     boid->rotation = fmod(rotationDelta, 2*M_PI);
 }
 
 void drawBoid(Boid* boid) {
