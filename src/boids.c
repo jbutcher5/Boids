@@ -116,32 +116,24 @@ void updateBoid(Boid* boid, Boid** flock, int flockSize) {
 
      float rules[] = {getCohesion(boid, localFlock), getAlignment(boid, localFlock), getSeparation(boid, localFlock)};
 
-     float targetRotation = 0;
+     float meanRotation = 0;
      for (int i = 0; i < 3; i++)
-          targetRotation += rules[i];
-     targetRotation /= 3;
+          meanRotation += rules[i];
+     meanRotation /= 3;
 
-     float possibleRotation = boid->angularVelocity*deltaTime;
+     float targetRotation = meanRotation - boid->rotation;
+     float totalPossibleRotation = boid->angularVelocity * deltaTime;
 
-     int rotSign = signbit(targetRotation);
-     if (!rotSign) rotSign++;
+     if (fabs(targetRotation) > fabs(totalPossibleRotation))
+          targetRotation = totalPossibleRotation;
 
-     possibleRotation *= rotSign;
-
-     if (fabs(targetRotation) >= fabs(possibleRotation) && meanRotation != boid->rotation)
-          rotateBoid(boid, possibleRotation);
-
-     if (fabs(targetRotation) < fabs(possibleRotation) && meanRotation != boid->rotation)
-          rotateBoid(boid, targetRotation);
-
-     */
+     rotateBoid(boid, targetRotation);
 
      // Position Updates
 
      Vector2 velocity = {sinf(boid->rotation)*boid->velocity.x, -cosf(boid->rotation)*boid->velocity.y};
      boid->origin = (Vector2){boid->origin.x + velocity.x * deltaTime, boid->origin.y + velocity.y * deltaTime};
      boid->origin = (Vector2){MODULO(boid->origin.x, 800), MODULO(boid->origin.y, 450)};
-
 
      boid->lastUpdate = now;
 }
