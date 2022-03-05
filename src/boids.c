@@ -23,6 +23,8 @@ Boid* newBoid(Vector2 origin, Vector2 velocity, float rotation, float angularVel
      Boid* boid = malloc(sizeof(Boid));
      *boid = (Boid){origin, rotation, positions, velocity, angularVelocity, GetTime()};
 
+     rotateBoid(boid, rotation);
+
      return boid;
 }
 
