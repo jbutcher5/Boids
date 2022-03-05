@@ -113,29 +113,24 @@ void updateBoid(Boid* boid, Boid** flock, int flockSize) {
      // Rotation Updates
 
      float rules[] = {getCohesion(boid, localFlock), getAlignment(boid, localFlock), getSeparation(boid, localFlock)};
-     float ruleDistance[3] = {0, 0, 0};
 
+     float targetRotation = 0;
      for (int i = 0; i < 3; i++)
-          ruleDistance[i] = sinf(INVERSE(rules[i]))*cosf(INVERSE(rules[i]));
-
-     float mostSignificant = 0;
-
-     for (int i = 0; i < 3; i++)
-          if (fabs(ruleDistance[i]) > mostSignificant || !mostSignificant)
-               mostSignificant = rules[i];
+          targetRotation += rules[i];
+     targetRotation /= 3;
 
      float possibleRotation = boid->angularVelocity*deltaTime;
 
-     int rotSign = signbit(mostSignificant);
+     int rotSign = signbit(targetRotation);
      if (!rotSign) rotSign++;
 
      possibleRotation *= rotSign;
 
-     if (fabs(mostSignificant) >= fabs(possibleRotation))
+     if (fabs(targetRotation) >= fabs(possibleRotation))
           rotateBoid(boid, possibleRotation);
 
-     if (fabs(mostSignificant) < fabs(possibleRotation))
-          rotateBoid(boid, mostSignificant);
+     if (fabs(targetRotation) < fabs(possibleRotation))
+          rotateBoid(boid, targetRotation);
 
      // Position Updates
 
