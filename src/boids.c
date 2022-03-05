@@ -4,8 +4,8 @@
 #include <math.h>
 #include <raylib.h>
 
-#define MODULO(a, n) fmod(a, n) + ((a < 0) * n)
-#define INVERSE(theta) fmod(theta+M_PI, 2*M_PI)
+#define MODULO(a, n) fmod((a), (n)) + (((a) < 0) * (n))
+#define INVERSE(theta) fmod((theta)+M_PI, 2*M_PI)
 #define localFlockSize 128
 
 struct LocalFlock {
@@ -23,8 +23,6 @@ Boid* newBoid(Vector2 origin, Vector2 velocity, float rotation, float angularVel
      Boid* boid = malloc(sizeof(Boid));
      *boid = (Boid){origin, 0, positions, velocity, angularVelocity, GetTime()};
 
-     rotateBoid(boid, rotation);
-
      return boid;
 }
 
@@ -39,7 +37,7 @@ LocalFlock getLocalFlock(Boid* boid, Boid** flock, int flockSize) {
 
      for (int i = 0; i < flockSize; i++) {
           float dist = distance(flock[i]->origin, boid->origin);
-          if (flock[i] != boid && dist < 30) {
+          if (flock[i] != boid && dist < 40) {
                localFlock.flock[localFlock.size] = flock[i];
                localFlock.size += 1;
 
@@ -54,7 +52,6 @@ LocalFlock getLocalFlock(Boid* boid, Boid** flock, int flockSize) {
 
 float getRotation(Vector2 v1, Vector2 v2) {
      Vector2 delta = {v1.x - v2.x, v1.y - v2.y};
-
      return atan2f(-delta.x, delta.y);
 }
 
@@ -114,12 +111,12 @@ void updateBoid(Boid* boid, Boid** flock, int flockSize) {
 
      // Rotation Updates
 
-     float rules[] = {getCohesion(boid, localFlock), getAlignment(boid, localFlock), getSeparation(boid, localFlock)};
+     float rules[] = {getCohesion(boid, localFlock), (getAlignment(boid, localFlock) + getSeparation(boid, localFlock)) / 2};
 
      float meanRotation = 0;
-     for (int i = 0; i < 3; i++)
+     for (int i = 0; i < 2; i++)
           meanRotation += rules[i];
-     meanRotation /= 3;
+     meanRotation /= 2;
 
      float targetRotation = meanRotation - boid->rotation;
      float totalPossibleRotation = boid->angularVelocity * deltaTime;
