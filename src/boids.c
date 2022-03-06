@@ -39,7 +39,7 @@ LocalFlock getLocalFlock(Boid* boid, Boid** flock, int flockSize) {
 
      for (int i = 0; i < flockSize; i++) {
           float dist = distance(flock[i]->origin, boid->origin);
-          if (flock[i] != boid && dist < 40) {
+          if (flock[i] != boid && dist < 50) {
                localFlock.flock[localFlock.size] = flock[i];
                localFlock.size += 1;
 
@@ -76,13 +76,18 @@ float getAlignment(Boid* boid, LocalFlock localFlock) {
      if (!localFlock.size)
           return boid->rotation;
 
-     float meanRotation = 0;
+     float meanRotation, total = 0;
 
      for (int i = 0; i < localFlock.size; i++)
-          meanRotation += localFlock.flock[i]->rotation;
-     meanRotation /= localFlock.size;
+          if (fabs(localFlock.flock[i]->rotation - boid->rotation) < M_PI/.5) {
+               meanRotation += localFlock.flock[i]->rotation;
+               total++;
+          }
 
-     return meanRotation;
+     if (total)
+          return meanRotation / total;
+
+     return boid->rotation;
 }
 
 float getSeparation(Boid* boid, LocalFlock localFlock) {
