@@ -102,6 +102,9 @@ float getSeparation(Boid* boid, LocalFlock localFlock) {
                closestLocalDistance = distances[i];
           }
 
+     if (closestLocalDistance > 5)
+          return boid->rotation;
+
      return INVERSE(closestLocalRotation);
 }
 
