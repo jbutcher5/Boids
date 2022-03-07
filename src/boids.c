@@ -145,10 +145,11 @@ void updateBoid(Boid* boid, Boid** flock, int flockSize) {
                targetRotation = separation - boid->rotation;
      }
 
-
-     // Santize Results
-
      targetRotation = MODULO(targetRotation, 2*M_PI);
+
+     if (targetRotation > M_PI)
+          targetRotation = INVERSE(targetRotation)-M_PI;
+
      rotateBoid(boid, targetRotation);
 
      // Position Updates
