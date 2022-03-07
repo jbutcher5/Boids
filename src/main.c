@@ -2,6 +2,7 @@
 #include "rlgl.h"
 #include "boids.h"
 #include "stdlib.h"
+#include <stdio.h>
 
 #define FPS 60
 #define WIDTH 800
@@ -17,7 +18,7 @@ int main(void) {
 	Boid* flock[BOIDS];
 
 	for (int i = 0; i < BOIDS; i++)
-		flock[i] = newBoid((Vector2){GetRandomValue(0, WIDTH), GetRandomValue(i, HEIGHT)}, (Vector2){20, 20}, GetRandomValue(0, 6), .1);
+		flock[i] = newBoid((Vector2){GetRandomValue(0, WIDTH), GetRandomValue(i, HEIGHT)}, (Vector2){20, 20}, GetRandomValue(0, 6), 1);
 
 	while (!WindowShouldClose()){
 		for (int i = 0; i < BOIDS; i++)
@@ -30,6 +31,11 @@ int main(void) {
 			drawBoid(flock[i]);
 
 		EndDrawing();
+	}
+
+	for (int i = 0; i < BOIDS; i++) {
+		free(flock[i]->positions);
+		free(flock[i]);
 	}
 
 	CloseWindow();
