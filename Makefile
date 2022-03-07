@@ -2,19 +2,22 @@ CC = clang
 CFLAGS = -lraylib -lm -o boids
 source := $(wildcard src/*.c)
 
-compile:
+build:
 	$(CC) $(source) $(CFLAGS) -g3
 
-optimised:
-	$(CC) $(source) $(CFLAGS) -O3
+build_debug:
+	$(CC) $(source) $(CFLAGS) -g3 -fsanitize=address -O1 -fno-omit-frame-pointer -fno-optimize-sibling-calls
 
-run: optimised
-	./boids
+build_release:
+	$(CC) $(source) $(CFLAGS) -g3
 
-debug: compile
+gdb: build_debug
 	/bin/gdb boids
 
-test: compile
+debug: build_debug
+	./boids
+
+run: build
 	./boids
 
 clean:
