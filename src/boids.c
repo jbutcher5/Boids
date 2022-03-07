@@ -8,6 +8,8 @@
 #define INVERSE(theta) fmod((theta)+M_PI, 2*M_PI)
 #define localFlockSize 128
 
+#include "stdio.h"
+
 struct LocalFlock {
      Boid* flock[localFlockSize];
      int size;
@@ -76,7 +78,8 @@ float getAlignment(Boid* boid, LocalFlock localFlock) {
      if (!localFlock.size)
           return boid->rotation;
 
-     float meanRotation, total = 0;
+     float meanRotation = 0;
+     int total = 0;
 
      for (int i = 0; i < localFlock.size; i++)
           if (fabs(localFlock.flock[i]->rotation - boid->rotation) < M_PI/.5) {
@@ -84,10 +87,10 @@ float getAlignment(Boid* boid, LocalFlock localFlock) {
                total++;
           }
 
-     if (total)
-          return meanRotation / total;
+     if (!total)
+          return boid->rotation;
 
-     return boid->rotation;
+     return meanRotation / total;
 }
 
 float getSeparation(Boid* boid, LocalFlock localFlock) {
@@ -119,21 +122,33 @@ void updateBoid(Boid* boid, Boid** flock, int flockSize) {
 
      LocalFlock localFlock = getLocalFlock(boid, flock, flockSize);
 
+     float closestBoid = -1;
+     for (int i = 0; i < localFlock.size; i++) {
+          float dist = distance(boid->origin, localFlock.flock[i]->origin);
+
+          if (distance(boid->origin, localFlock.flock[i]->origin) < closestBoid || closestBoid == -1)
+               closestBoid = dist;
+     }
+
      // Rotation Updates
 
-     float rules[] = {getCohesion(boid, localFlock), (getAlignment(boid, localFlock) + getSeparation(boid, localFlock)) / 2};
+     float alignment = getAlignment(boid, localFlock);
+     float cohesion = getCohesion(boid, localFlock);
+     float separation = getSeparation(boid, localFlock);
+     float targetRotation = alignment - boid->rotation;
 
-     float meanRotation = 0;
-     for (int i = 0; i < 2; i++)
-          meanRotation += rules[i];
-     meanRotation /= 2;
+     if (fabs(boid->rotation - alignment) > 0 && closestBoid > 0) {
+          if (closestBoid >= 30)
+               targetRotation = cohesion - boid->rotation;
 
-     float targetRotation = meanRotation - boid->rotation;
-     float totalPossibleRotation = boid->angularVelocity * deltaTime;
+          if (closestBoid <= 10)
+               targetRotation = separation - boid->rotation;
+     }
 
-     if (fabs(targetRotation) > fabs(totalPossibleRotation))
-          targetRotation = totalPossibleRotation;
 
+     // Santize Results
+
+     targetRotation = MODULO(targetRotation, 2*M_PI);
      rotateBoid(boid, targetRotation);
 
      // Position Updates
