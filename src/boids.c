@@ -150,6 +150,14 @@ void updateBoid(Boid* boid, Boid** flock, int flockSize) {
      if (targetRotation > M_PI)
           targetRotation = INVERSE(targetRotation)-M_PI;
 
+     float maximumRotation = boid->angularVelocity * deltaTime;
+
+     if (targetRotation > maximumRotation)
+          targetRotation = maximumRotation;
+
+     if (targetRotation < maximumRotation)
+          targetRotation = -maximumRotation;
+
      rotateBoid(boid, targetRotation);
 
      // Position Updates
