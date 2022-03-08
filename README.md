@@ -8,7 +8,7 @@ Put simply, [boids](https://en.wikipedia.org/wiki/Boids) are flocking simulation
 
 ## Why did I choose C?
 
-You may be currious why I chose [the C programming language](https://en.wikipedia.org/wiki/C_(programming_language)), instead of a more recent and safer language like [Rust](https://www.rust-lang.org/) or [Python](https://www.python.org/). This is because I see C as an industry standard despite all of the flaws it may have and I accessible to many programmers of all backgrounds.
+You may be currious why I chose [the C programming language](https://en.wikipedia.org/wiki/C_(programming_language)), instead of a more recent and safer language like [Rust](https://www.rust-lang.org/) or [Python](https://www.python.org/). This is because I see C as an industry standard despite all of the flaws it may have and I think it's accessible to many programmers of all backgrounds.
 
 ## Under the Hood
 
