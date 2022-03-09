@@ -78,19 +78,11 @@ float getAlignment(Boid* boid, LocalFlock localFlock) {
      if (!localFlock.size)
           return boid->rotation;
 
-     float meanRotation = 0;
-     int total = 0;
-
+     float totalRotations = 0;
      for (int i = 0; i < localFlock.size; i++)
-          if (fabs(localFlock.flock[i]->rotation - boid->rotation) < M_PI/.5) {
-               meanRotation += localFlock.flock[i]->rotation;
-               total++;
-          }
+          totalRotations += localFlock.flock[i]->rotation;
 
-     if (!total)
-          return boid->rotation;
-
-     return meanRotation / total;
+     return totalRotations / localFlock.size;
 }
 
 float getSeparation(Boid* boid, LocalFlock localFlock) {
