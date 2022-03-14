@@ -8,8 +8,6 @@
 #define INVERSE(theta) fmod((theta)+M_PI, 2*M_PI)
 #define localFlockSize 128
 
-#include "stdio.h"
-
 struct LocalFlock {
      Boid* flock[localFlockSize];
      int size;

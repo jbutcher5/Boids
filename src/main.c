@@ -2,7 +2,6 @@
 #include "rlgl.h"
 #include "boids.h"
 #include "stdlib.h"
-#include <stdio.h>
 
 #define FPS 60
 #define WIDTH 800
