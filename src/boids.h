@@ -1,5 +1,5 @@
 #pragma once
-#include "raylib.h"
+#include <raylib.h>
 
 typedef struct Boid {
     Vector2 origin;

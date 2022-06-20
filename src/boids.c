@@ -1,8 +1,8 @@
-#include "stdlib.h"
-#include "math.h"
-#include "boids.h"
+#include <stdlib.h>
 #include <math.h>
 #include <raylib.h>
+
+#include "boids.h"
 
 #define MODULO(a, n) fmod((a), (n)) + (((a) < 0) * (n))
 #define INVERSE(theta) fmod((theta)+M_PI, 2*M_PI)

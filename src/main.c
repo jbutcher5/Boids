@@ -1,7 +1,8 @@
-#include "raylib.h"
-#include "rlgl.h"
+#include <raylib.h>
+#include <rlgl.h>
+#include <stdlib.h>
+
 #include "boids.h"
-#include "stdlib.h"
 
 #define FPS 60
 #define WIDTH 800
