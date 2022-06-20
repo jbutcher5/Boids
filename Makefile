@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -lraylib -lm -o boids
+CFLAGS = -lraylib -ldl -pthread -lGL -lm -o boids
 source := $(wildcard src/*.c)
 
 build:
